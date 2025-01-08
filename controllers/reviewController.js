@@ -25,4 +25,21 @@ export function addReviews(req, res) {
         })
     })
 }
-    
+
+// create get review function
+
+export function getReviews(req,res){
+    const user = req.User;
+    if(user == null || user.role !== "admin"){
+        reviews.find({isAproved : true}).then((reviews)=>{
+            res.json(reviews);
+        })
+        return;
+        }
+
+    if(user.role == "admin"){
+        reviews.find().then((reviews)=>{
+            res.json(reviews);
+        })
+    }
+}
