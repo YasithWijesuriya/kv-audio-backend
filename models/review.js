@@ -26,7 +26,7 @@ const reviewSchema = new mongoose.Schema({
     profilePicture :{
         type:String,
         required:true,
-        default:"default.jpg"
+        default:"https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
     },
     isAproved :{
         type:Boolean,
