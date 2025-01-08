@@ -28,7 +28,7 @@ const reviewSchema = new mongoose.Schema({
         required:true,
         default:"default.jpg"
     },
-    isAproved :{
+    isApproved :{
         type:Boolean,
         required :true,
         default:false
