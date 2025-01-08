@@ -12,7 +12,7 @@ export function addReviews(req, res) {
     const data = req.body;
     data.name = req.User.firstName + " "+ req.User.lastName;
     data.email = req.User.email;
-    data.profilePicture = req.Use.profilePicture;
+    data.profilePicture = req.User.profilePicture;
 
     const newReview = new reviews(data);
     newReview.save().then(()=>{
