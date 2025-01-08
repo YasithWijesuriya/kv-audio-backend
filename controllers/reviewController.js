@@ -5,9 +5,10 @@ export function addReviews(req, res) {
         res.status(401).json({
                 message: "please login and try again",
             })
-        }
+        
     return;
-    }
+        }
+   
     const data = req.body;
     data.name = req.User.firstName + " "+ req.User.lastName;
     data.email = req.User.email;
@@ -23,4 +24,5 @@ export function addReviews(req, res) {
             message: "failed to add review",
         })
     })
+}
     
