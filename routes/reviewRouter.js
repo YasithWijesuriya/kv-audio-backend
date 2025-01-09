@@ -4,6 +4,7 @@ import { addReviews, aprproveReview, deleteReview, getReviews } from "../control
 const reviewRouter = express.Router();
 reviewRouter.post("/",addReviews)
 reviewRouter.get("/", getReviews)
+reviewRouter.put("/approve/:email",aprproveReview)
 reviewRouter.delete("/:email",deleteReview)
 
 
