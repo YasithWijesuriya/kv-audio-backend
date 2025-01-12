@@ -31,13 +31,26 @@ export async function addProduct(req,res){
 }
 
 export async function getProduct(req,res){
+
+    if(req.User != null && req.User.role == "admin"){
+        isAdmin = true;
+    }
+
     try{
+        if(isItAdmin(req)){
         const products = await product.find();
         res.status(200).send(products);
+        return;
+    }else{
+        const products = await product.find({availability: true});
+        res.status(200).send(products);
+        return;
 
+    }
     }catch(e){
        res.status(500).json({
         message: "failed to get product"
        })
     }
 }
+
