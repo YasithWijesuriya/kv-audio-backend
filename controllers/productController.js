@@ -80,6 +80,7 @@ export async function updateProduct(req,res){
     }
 }
 
+//delete product function
 export async function deleteProduct(req,res){
     
     try{
