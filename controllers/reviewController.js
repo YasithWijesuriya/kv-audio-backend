@@ -28,6 +28,24 @@ export function addReviews(req, res) {
 
 // create get review function
 
+
+export async function getReviews(req, res) {
+    const user = req.User;
+  
+    try {
+      if (user == null || user.role !== "admin") {
+        const reviews = await reviews.find({ isApproved: true });
+        res.status(200).json(reviews);
+      } else if (user.role === "admin") {
+        const reviews = await reviews.find();
+        res.status(200).json(reviews);
+      }
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  }
+/*
 export function getReviews(req, res) {
     const user = req.User;
     if (user == null || user.role !== "admin") {
@@ -38,11 +56,12 @@ export function getReviews(req, res) {
     }
 
     if (user.role == "admin") {
+
         reviews.find().then((reviews) => {
             res.status(200).json(reviews);
         })
     }
-}
+}*/
 
 //this is use for delete reviews
 
