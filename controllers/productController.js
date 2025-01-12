@@ -29,3 +29,15 @@ export async function addProduct(req,res){
         })
     }
 }
+
+export async function getProduct(req,res){
+    try{
+        const products = await product.find();
+        res.status(200).send(products);
+
+    }catch(e){
+       res.status(500).json({
+        message: "failed to get product"
+       })
+    }
+}

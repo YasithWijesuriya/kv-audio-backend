@@ -38,7 +38,19 @@ const productSchema = new mongoose.Schema({
         required:true,
         default:true
     }
-    
+
 })
 const Product = mongoose.model("Product", productSchema);
 export default Product;
+
+/*
+{
+  "key": "12345-abcde",
+  "name": "Wireless Headphones",
+  "price": 79.99,
+  "category": "Electronics",
+  "dimensions": "7.5 x 6.5 x 3 inches",
+  "description": "High-quality wireless headphones with noise-cancellation and a comfortable design.",
+  "availability": true
+}
+*/

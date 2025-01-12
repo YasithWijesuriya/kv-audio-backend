@@ -28,7 +28,7 @@ export function addReviews(req, res) {
 
 // create get review function
 
-
+/*
 export async function getReviews(req, res) {
     const user = req.User;
   
@@ -45,7 +45,8 @@ export async function getReviews(req, res) {
       res.status(500).json({ message: "Failed to fetch reviews" });
     }
   }
-/*
+    */
+
 export function getReviews(req, res) {
     const user = req.User;
     if (user == null || user.role !== "admin") {
@@ -61,7 +62,7 @@ export function getReviews(req, res) {
             res.status(200).json(reviews);
         })
     }
-}*/
+}
 
 //this is use for delete reviews
 
