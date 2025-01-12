@@ -49,3 +49,15 @@ export function loginUser(req, res) {
       }
     });
 }
+
+export function isItAdmin(req){
+
+  let isAdmin = false;
+  if(req.User != null && req.User.role == "admin"){
+      isAdmin = true;
+  }
+
+  return isAdmin;
+
+
+}
