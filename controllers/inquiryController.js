@@ -1,5 +1,5 @@
 import inquiry from "../models/inquiry.js";
-import { isItCustomer } from "./userController.js";
+import { isItCustomer ,isItAdmin} from "./userController.js";
 
 export async function addInquiry(req, res){
     try{
@@ -38,5 +38,126 @@ export async function addInquiry(req, res){
         res.status(500).json({
             message: "failed to add inquiry",
         })
+    }
+}
+
+// get inquiry
+
+export async function getInquiries(req,res){
+    try{
+        if(isItCustomer(req)){
+        const inquiries = await inquiry.find({
+            email:req.User.email
+        })
+        res.json(inquiries);
+        return;
+    }else if(isItAdmin(req)){
+        const inquiries = await inquiry.find();
+        res.json(inquiries);
+        return;
+    }else{
+        res.status(401).json({
+            message: "you are not authorized to perform this action",
+        })
+        return;
+    }
+        
+    }catch (e){
+        console.log(e)
+        res.status(500).json({
+            message: "failed to get inquiries",
+        })
+
+    }
+}
+/*
+export async function deleteInquiries(req,res){
+    try{
+        if(isItAdmin(req)){
+            const Id = req.params.id;
+            await inquiry.deleteOne({id:Id})
+            res.json({
+                message:"inquiry deleted successfully"
+            })
+            return;
+            
+        }else if(isItCustomer(req)){
+            const Id = req.params.id;
+
+            const inquiry = await inquiry.findOne({id:Id});
+            if(inquiry == null){
+                res.status(404).json({
+                    message: "inquiry not found",
+                })
+                return;
+            }else{
+                if(inquiry.email == req.User.email){
+                    await inquiry.deleteOne({id:Id})
+                    res.json({
+                        message:"inquiry deleted successfully"
+                    })
+                    return;
+                }else{
+                    res.status(401).json({
+                        message: "you are not authorized to perform this action",
+                    })
+                }
+            }
+        }else{
+            res.status(401).json({
+                message: "you are not authorized to perform this action",
+            })
+            return;
+        }
+
+    }catch(e){
+            console.log(e)
+            res.status(500).json({
+                message: "failed to delete inquiry",
+            })
+    }
+
+}*/
+
+export async function deleteInquiries(req, res) {
+    try {
+        if (isItAdmin(req)) {
+            const Id = req.params.id;
+            await inquiry.deleteOne({ id: Id });
+            res.json({
+                message: "Inquiry deleted successfully"
+            });
+            return;
+        } else if (isItCustomer(req)) {
+            const Id = req.params.id;
+
+            const foundInquiry = await inquiry.findOne({ id: Id });
+            if (!foundInquiry) {
+                res.status(404).json({
+                    message: "Inquiry not found"
+                });
+                return;
+            }
+
+            if (foundInquiry.email === req.User.email) {
+                await inquiry.deleteOne({ id: Id });
+                res.json({
+                    message: "Inquiry deleted successfully"
+                });
+            } else {
+                res.status(401).json({
+                    message: "You are not authorized to perform this action"
+                });
+            }
+        } else {
+            res.status(401).json({
+                message: "You are not authorized to perform this action"
+            });
+        }
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({
+            message: "Failed to delete inquiry"
+        });
     }
 }
