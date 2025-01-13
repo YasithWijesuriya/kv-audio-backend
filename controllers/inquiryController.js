@@ -34,6 +34,7 @@ export async function addInquiry(req, res){
         }
 
     }catch(e){
+        console.log(e)
         res.status(500).json({
             message: "failed to add inquiry",
         })
