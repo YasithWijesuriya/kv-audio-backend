@@ -211,6 +211,8 @@ export async function deleteInquiries(req, res) {
 //     }
 // }
 
+//update inquiry
+
 export async function updateInquiry(req,res){
 
     try{
