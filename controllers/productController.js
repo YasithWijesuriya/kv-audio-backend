@@ -34,7 +34,7 @@ export async function addProduct(req,res){
 
 // get product function
 
-export async function getProduct(req,res){
+export async function getProducts(req,res){
     try{
         if(isItAdmin(req)){
         const products = await product.find();
@@ -103,3 +103,22 @@ export async function deleteProduct(req,res){
         })
     }
 }
+
+export async function getProduct(req,res){
+    try{
+      const key = req.params.key;
+      const product = await product.findOne({key:key})
+      if(product == null){
+        res.status(404).json({
+          message : "Product not found"
+        })
+        return;
+      }
+      res.json(product)
+      return;
+    }catch(e){
+      res.status(500).json({
+        message : "Failed to get product"
+      })
+    }
+  }
