@@ -1,124 +1,131 @@
-import product from '../models/product.js';
-import { isItAdmin } from './userController.js';
 
-// add product function
+import Product from "../models/product.js";
+import { isItAdmin } from "./userController.js";
+
+ // add product function
+
+
 export async function addProduct(req,res){
-    console.log(req.User)
 
-    if(req.User == null){
-        res.status(401).send({
-            message: "please login and try again"
-        })
-        return
-        }
-    
-    if(req.User.role != "admin"){
-        res.status(401).send({
-            message: "you are not authorized to add products"
-        })
-        return
+    if(req.user == null){
+      res.status(401).json({
+        message : "Please login and try again"
+      })
+      return
     }
+    if(req.user.role !="admin"){
+      res.status(403).json({
+        message : "You are not authorized to perform this action"
+      })
+      return
+    }
+
+
     const data = req.body;
-    const newProduct = new product(data);
+    const newProduct = new Product(data);
     try{
-        await newProduct.save();
-        res.status(201).send({
-            message: "product added successfully",
-        })
-    }catch{
-        res.status(500).send({
-            message: "failed to add product"
-        })
+      await newProduct.save();
+      res.json({
+        message : "Product registered successfully"
+      })
+    }catch(error){
+      res.status(500).json({
+        error : "Product registration failed"
+      })
     }
 }
 
 // get product function
-
 export async function getProducts(req,res){
-    try{
-        if(isItAdmin(req)){
-        const products = await product.find();
-        res.status(200).send(products);
-        return;
-    }else{
-        const products = await product.find({availability: true});
-        res.status(200).send(products);
-        return;
 
+  try{
+    
+    if(isItAdmin(req)){
+      const products = await Product.find();
+      res.json(products);
+      return;
+    }else{
+      const products = await Product.find({availability:true});
+      res.json(products);
+      return;
     }
-    }catch(e){
-       res.status(500).json({
-        message: "failed to get product"
-       })
-    }
+    
+  }catch(e){
+    res.status(500).json({
+      message : "Failed to get products"
+    })
+  }
 }
+
 
 // update product function
-
 export async function updateProduct(req,res){
-    try{
-        if(isItAdmin(req)){
-            const Key =req.params.key;
+  try{
+    if(isItAdmin(req)){
 
-            const data = req.body
+      const key = req.params.key;
 
-            await product.updateOne({key:Key},data)
-            res.status(200).send({
-                message: "product updated successfully"
-            })
+      const data = req.body
 
-        }else{
-            res.status(403).json({
-                message: "you are not authorized to update product"
-            })
-        }
+      await Product.updateOne({key:key},data)
 
-    }catch(e){
-        res.status(500).json({
-            message: "failed to update product"
-        })
+      res.json({
+        message : "Product updated successfully"
+      })
+      return;
+
+    }else{
+      res.status(403).json({
+        message : "You are not authorized to perform this action"
+      })
+      return;
     }
+
+  }catch(e){
+    res.status(500).json({
+      message : "Failed to update product"
+    })
+  }
 }
 
-//delete product function
-export async function deleteProduct(req,res){
-    
-    try{
-        if(isItAdmin(req)){
-            const Key = req.params.key;
-            await product.deleteOne({key:Key})
-            res.status(200).send({
-                    message: "product deleted successfully"
-                }) 
-        }else{
-            res.status(403).json({
-                message: "you are not authorized to delete product"
-            })
-            return;
-        }
+ //delete product function
 
-    }catch(e){
-        res.status(500).json({
-            message: "failed to delete product"
-        })
+export async function deleteProduct(req,res){
+  try{
+    if(isItAdmin(req)){
+      const key = req.params.key;
+      await Product.deleteOne({key:key})
+      res.json({
+        message : "Product deleted successfully"
+      })
+    }else{
+      res.status(403).json({
+        message : "You are not authorized to perform this action"
+      })
+      return;
     }
+  }catch(e){
+    res.status(500).json({
+      message : "Failed to delete product"
+    })
+  }
 }
 
 export async function getProduct(req,res){
-    try{
-      const key = req.params.key;
-      const product = await product.findOne({key:key})
-      if(product == null){
-        res.status(404).json({
-          message : "Product not found"
-        })
-        return;
-      }
-      res.json(product)
-      return;
-    }catch(e){
-      res.status(500).json({
-        message : "Failed to get product"
+  try{
+    const key = req.params.key;
+    const product = await Product.findOne({key:key})
+    if(product == null){
+      res.status(404).json({
+        message : "Product not found"
       })
+      return;
     }
+    res.json(product)
+    return;
+  }catch(e){
+    res.status(500).json({
+      message : "Failed to get product"
+    })
   }
+}
