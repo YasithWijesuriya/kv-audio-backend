@@ -5,68 +5,151 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export function registerUser(req,res){
-    const data = req.body
-    data.password =  bcrypt.hashSync(data.password,10)
-    const newUser = new User(data)
+export function registerUser(req, res){
+    const data = req.body;
 
-    newUser
-    .save()
-    .then(() => {
-      res.json({ message: "User registered successfully" });
+    data.password = bcrypt.hashSync(data.password,10);
+
+    const newUser = new User(data);
+    newUser.save().then(()=>{
+        res.json({message: "User registered successfully!"})
+    }).catch((error)=>{
+        res.status(500).json({error:"user registered failed!"})
     })
-    .catch((error) => {
-      res.status(500).json({ error: "User registration failed" });
-    });
 }
 
-  
-export function loginUser(req, res) {
+export function loginUser(req,res){
     const data = req.body;
-  
+
     User.findOne({
-      email: data.email,
+        email:data.email
     }).then(
-      (user) => {
-  
-      if (user == null) {
-        res.status(404).json({ error: "User not found" });
-      } else {      
-        const isPasswordCorrect = bcrypt.compareSync(data.password, user.password);
-  
-        if (isPasswordCorrect) {
-          const token = jwt.sign({
-            firstName : user.firstName,
-            lastName : user.lastName,
-            email : user.email,
-            profilePicture:user.profilePicture,
-            role : user.role,
-            phone : user.phone
-          },process.env.JWT_SECRET)
-          res.json({ message: "Login successful" , token : token, User:user });
-        } else {
-          res.status(401).json({ error: "Login failed" });
+        (user)=>{
+            if (user == null){
+                res.status(404).json({error:"User not found"});
+            }else{
+
+                if(user.isBlocked){
+                    res.status(403).json({error:"Your account is blocked please contact the admin"});
+                    return;
+                }
+                
+
+                const isPasswordCorrect = bcrypt.compareSync(data.password, user.password);
+
+                if(isPasswordCorrect){
+                    const token = jwt.sign({
+                        firstName:user.firstName,
+                        lastName:user.lastName,
+                        email:user.email,
+                        role:user.role,
+                        profilePicture:user.profilePicture,
+                        phone:user.phone
+                    }, process.env.JWT_SECRET);
+                    res.json({message:"Login successfull", token:token, user:user});
+                }else{
+                    res.status(401).json({error:"Login failed"});
+                }
+            }
         }
-      }
-    });
+    );
 }
 
 export function isItAdmin(req){
-
-  let isAdmin = false;
-  if(req.User != null && req.User.role == "admin"){
-      isAdmin = true;
-  }
-
-  return isAdmin;
-
-
+    let isAdmin = false;
+    if(req.user != null){
+        if(req.user.role == "admin"){
+            isAdmin = true;
+        }
+    }
+    return isAdmin;
 }
 
 export function isItCustomer(req){
-  let isCustomer = false;
-  if(req.User != null && req.User.role == "customer"){
-    isCustomer = true;
-  }
-  return isCustomer;
+    let isCustomer = false;
+
+    if(req.user != null){
+        if(req.user.role == "customer"){
+            isCustomer = true;
+        }
+    }
+
+    return isCustomer;
+}
+
+export async function getAllUsers(req,res) {
+    if(isItAdmin(req)){
+        try{
+            const users = await User.find();
+            res,json(users);
+        }catch(e){
+            res.status(500).json({error:"Failed to get users"});
+        }
+    }else{
+        res.status(403).json({error:"Unuthorized"});
+    }
+}
+
+export async function blockOrUnblockUser(req,res) {
+    const email = req.params.email;
+
+    if(isItAdmin(req)){
+        try{
+            const user = await User.findOne(
+                {
+                    email:email
+                }
+            )
+            if(user==null){
+                res.status(404).json({error:"User not found"});
+                return;
+            }
+            const isBlocked = !user.isBlocked;
+
+            await User.updateOne(
+                {
+                    email:email
+                },
+                {
+                    isBlocked:isBlocked
+                }
+            );
+            res.json({message:"User blocked/unblock successfully"});
+        }catch(e){
+            res.status(500).json({error:"Failed to get user"});
+
+        }
+    }else{
+        res.status(403).json({error:"Unauthorized"});
+    }
+}
+
+export async function getOrders(req,res){
+    if(isItCustomer(req)){
+        try{
+            const orders = await Order.find({email:req.user.email});
+            res.json(orders);
+        }catch(e){
+            res.staus(500).json({error:"Failed to get orders"});
+        }
+    }else if(isItAdmin(req)){
+        try{
+            const orders = await Order.find();
+            res.json(orders);
+        }catch(e){
+            res.status(500).json({error:"Failed to get orders"});
+        }
+    }else{
+        res.status(403).json({error:"Unauthorized"});
+    }
+        
+    
+}
+
+export function getUser(req,res){
+    if(req.user!=null){
+        res.json(req.user);
+    }else{
+        res.status(403).json({error:"Unauthorized"});
+    }
 }
