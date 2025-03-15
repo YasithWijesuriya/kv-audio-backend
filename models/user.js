@@ -43,8 +43,13 @@ const userSchema = new mongoose.Schema({
         required : true,
         default : "default.jpg"
 
-    }
-    })
+    },
+    emailVerified : {
+        type : Boolean,
+        required : true,
+        default : false
+      }
+    });
 
     const User = mongoose.model("user",userSchema);
 
