@@ -13,7 +13,7 @@ const transport = nodemailer.createTransport({
   secure: false,
   auth: {
     user: "yasithruchiranga95@gmail.com",
-    pass: "rqukuosfaeksxtse",
+    pass: "iipadvffscsfrtjb",
   }
 })
 export function registerUser(req, res) {
