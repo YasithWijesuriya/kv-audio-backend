@@ -9,6 +9,11 @@ import reviewRouter from "./routes/reviewRouter.js";
 import inquiryRouter from "./routes/inquiryRouter.js";
 import cors from "cors";
 import orderRouter from "./routes/orderRouter.js";
+import deviceRoutes from './routes/deviceRouter.js';
+import eventRoutes from './routes/eventRouter.js';
+import messageRoutes from './routes/messageRouter.js';
+import uploadRouter from './routes/uploadRouter.js';
+import galleryRouter from './routes/galleryRouter.js';
 
 dotenv.config();
 
@@ -46,12 +51,16 @@ connection.once("open", () => {
 });
 
 
-
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/reviews", reviewRouter);
 app.use("/api/inquiries", inquiryRouter);
-app.use("/api/orders",orderRouter)
+app.use("/api/orders",orderRouter);
+app.use('/api/devices', deviceRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/uploads', uploadRouter);
+app.use('/api/gallery', galleryRouter);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

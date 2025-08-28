@@ -21,12 +21,36 @@ export async function addProduct(req,res){
     }
 
 
-    const data = req.body;
-    const newProduct = new Product(data);
     try{
+      const { key, name, price, category, dimensions, description, availability, image } = req.body;
+
+      if(!name || !price || !dimensions || !description){
+        res.status(400).json({
+          message: "Missing required fields: name, price, dimensions, description"
+        })
+        return
+      }
+
+      const generatedKey = key && key.trim().length > 0
+        ? key
+        : `${String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}-${Date.now()}`;
+
+      const payload = {
+        key: generatedKey,
+        name,
+        price,
+        category,
+        dimensions,
+        description,
+        availability: availability !== undefined ? availability : true,
+        image: Array.isArray(image) ? image : (image ? [image] : undefined)
+      };
+
+      const newProduct = new Product(payload);
       await newProduct.save();
-      res.json({
-        message : "Product registered successfully"
+      res.status(201).json({
+        message : "Product registered successfully",
+        product: newProduct
       })
     }catch(error){
       res.status(500).json({
@@ -39,17 +63,57 @@ export async function addProduct(req,res){
 export async function getProducts(req,res){
 
   try{
-    
-    if(isItAdmin(req)){
-      const products = await Product.find();
-      res.json(products);
-      return;
-    }else{
-      const products = await Product.find({availability:true});
-      res.json(products);
-      return;
+    const isAdmin = isItAdmin(req);
+
+    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
+    const limit = Math.max(parseInt(req.query.limit || '12', 10), 1);
+    const search = (req.query.q || '').toString().trim();
+    const category = (req.query.category || '').toString().trim();
+    const available = req.query.availability;
+    const sortParam = (req.query.sort || '').toString().trim();
+
+    const filter = {};
+    if(!isAdmin){
+      filter.availability = true;
     }
-    
+    if(category){
+      filter.category = category;
+    }
+    if(available === 'true' || available === 'false'){
+      filter.availability = available === 'true';
+    }
+    if(search){
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    let sort = { createdAt: -1 };
+    if(sortParam){
+      if(sortParam === 'price_asc') sort = { price: 1 };
+      else if(sortParam === 'price_desc') sort = { price: -1 };
+      else if(sortParam === 'name_asc') sort = { name: 1 };
+      else if(sortParam === 'name_desc') sort = { name: -1 };
+    }
+
+    const total = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
+      .sort(sort)
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json({
+      data: products,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+    return;
   }catch(e){
     res.status(500).json({
       message : "Failed to get products"
@@ -129,3 +193,5 @@ export async function getProduct(req,res){
     })
   }
 }
+
+
