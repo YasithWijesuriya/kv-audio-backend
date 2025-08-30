@@ -23,19 +23,18 @@ const app = express();
 
 
 const allowedOrigins = [
-  "http://localhost:5174", // Vite dev server
-  "https://d0582003.kv-audio-frontend.pages.dev" // deployed frontend
+  "http://localhost:5174", 
+  "https://d0582003.kv-audio-frontend.pages.dev"
 ];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed for this origin"));
-    }
-  }
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  credentials: true
 }));
+
+app.options("*", cors()); // handle preflight requests
+
 
 app.use(bodyParser.json());
 
