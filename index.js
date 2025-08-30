@@ -21,23 +21,22 @@ dotenv.config();
 
 const app = express();
 
-// ✅ CORS setup: allow any subdomain of kv-audio-frontend.pages.dev
 const allowedOrigins = [
-  "http://localhost:5173", // local dev
-  /\.kv-audio-frontend\.pages\.dev$/ // any subdomain deployed frontend
+  "http://localhost:5173", 
+  /\.kv-audio-frontend\.pages\.dev$/ 
 ];
 
 app.use(cors({
   origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  credentials: true // send cookies / auth headers
+  credentials: true 
 }));
 
-app.options("*", cors()); // preflight requests
+app.options("*", cors()); 
 
 app.use(bodyParser.json());
 
-// JWT middleware
+
 app.use((req, res, next) => {
   let token = req.header("Authorization");
   if (token != null) {
@@ -53,7 +52,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB connection
+
 const mongoUrl = process.env.MONGO_URL;
 mongoose.connect(mongoUrl, {
   useNewUrlParser: true,
