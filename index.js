@@ -50,7 +50,6 @@ connection.once("open", () => {
   console.log("MongoDB connection established successfully");
 });
 
-
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/reviews", reviewRouter);
