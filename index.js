@@ -21,24 +21,23 @@ dotenv.config();
 
 const app = express();
 
-
+// ✅ CORS setup: allow any subdomain of kv-audio-frontend.pages.dev
 const allowedOrigins = [
-  "http://localhost:5173", 
-  "https://d0582003.kv-audio-frontend.pages.dev",
-  "https://81fdc8cd.kv-audio-frontend.pages.dev"
+  "http://localhost:5173", // local dev
+  /\.kv-audio-frontend\.pages\.dev$/ // any subdomain deployed frontend
 ];
 
 app.use(cors({
   origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  credentials: true
+  credentials: true // send cookies / auth headers
 }));
 
-app.options("*", cors()); // handle preflight requests
-
+app.options("*", cors()); // preflight requests
 
 app.use(bodyParser.json());
 
+// JWT middleware
 app.use((req, res, next) => {
   let token = req.header("Authorization");
   if (token != null) {
@@ -46,12 +45,15 @@ app.use((req, res, next) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (!err) {
         req.user = decoded;
+      } else {
+        console.log("JWT verification error:", err);
       }
     });
   }
   next();
 });
 
+// MongoDB connection
 const mongoUrl = process.env.MONGO_URL;
 mongoose.connect(mongoUrl, {
   useNewUrlParser: true,
@@ -66,6 +68,7 @@ connection.on("error", (err) => {
   console.error("MongoDB connection error:", err);
 });
 
+// Routes
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/reviews", reviewRouter);
