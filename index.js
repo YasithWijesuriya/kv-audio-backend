@@ -23,7 +23,7 @@ const app = express();
 
 
 const allowedOrigins = [
-  "http://localhost:5173", // Vite dev server
+  "http://localhost:5174", // Vite dev server
   "https://d0582003.kv-audio-frontend.pages.dev" // deployed frontend
 ];
 
